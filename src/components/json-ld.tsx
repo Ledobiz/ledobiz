@@ -27,7 +27,8 @@ const organization: Thing = {
   logo: absolute("/brand/ledobiz-logo-email.png"),
   image: absolute("/opengraph-image"),
   email: site.email,
-  address: { "@type": "PostalAddress", addressLocality: site.address.locality, addressRegion: site.address.region, addressCountry: site.address.country },
+  address: site.offices.map((office) => ({ "@type": "PostalAddress", streetAddress: office.street, addressLocality: office.locality, addressRegion: office.region, addressCountry: "NG" })),
+  identifier: { "@type": "PropertyValue", propertyID: "CAC RC number", value: site.rcNumber },
   areaServed: [{ "@type": "Country", name: "Nigeria" }, "Worldwide"],
   knowsAbout: ["Web development", "Mobile app development", "Desktop software", "Cloud and DevOps", "API development", "Software security"],
   hasOfferCatalog: {

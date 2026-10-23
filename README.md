@@ -66,6 +66,8 @@ Roles: **Admin** (everything), **Project lead** (quotes, projects, clients), **F
   hello@ for client emails, accounts@ for billing) must be verified senders in Brevo, and the domain should be
   authenticated there (DKIM/DMARC) so emails don't land in spam. Use "Send test emails" in Settings to check both.
   `SMTP_*` still works as an alternative when `BREVO_API_KEY` is empty.
+- **Bot protection.** Create a Cloudflare Turnstile widget (Managed mode, hostname `ledobiz.com`) and set
+  `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY`. Without them the quote form skips the check.
 - **Push alerts.** New quote requests send a web push to every active admin, alongside the team email.
   Create a OneSignal app (Web → Custom Code, site URL = `APP_URL`) and set `ONESIGNAL_APP_ID` and
   `ONESIGNAL_REST_API_KEY`. Each admin then opens Settings → Push alerts on each device (Chrome on Android

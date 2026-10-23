@@ -33,6 +33,10 @@ import {
   type QuoteResponse,
 } from "@/lib/quote";
 import { site } from "@/lib/site";
+import { Turnstile } from "@/components/turnstile";
+
+// Set at build time; without it (local development) the bot check is skipped.
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
 
 type Status = "idle" | "sending" | "failed" | "done";
 type Field = "name" | "email" | "phone";
@@ -89,6 +93,8 @@ export function QuoteForm({ preset = null }: { preset?: ProjectType | null }) {
   const [phone, setPhone] = useState("");
   const [company, setCompany] = useState("");
   const [website, setWebsite] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [turnstileReset, setTurnstileReset] = useState(0);
 
   const headingRef = useRef<HTMLDivElement>(null);
   const successRef = useRef<HTMLHeadingElement>(null);
@@ -163,12 +169,19 @@ export function QuoteForm({ preset = null }: { preset?: ProjectType | null }) {
       const response = await fetch("/api/quote", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type, currency, budget, timeline, features: chosenFeatures, details, name, email, phone, company, website }),
+        body: JSON.stringify({ type, currency, budget, timeline, features: chosenFeatures, details, name, email, phone, company, website, turnstileToken }),
       });
       const result = (await response.json().catch(() => null)) as QuoteResponse | null;
       if (response.ok && result?.ok) {
         setReference(result.reference);
         setStatus("done");
+        return;
+      }
+      // Each security token works once, so fetch a new one before the visitor tries again.
+      setTurnstileReset((value) => value + 1);
+      if ((response.status === 403 || response.status === 503) && result && !result.ok && result.errors.turnstile) {
+        setServerErrors(result.errors);
+        setStatus("idle");
         return;
       }
       if (response.status === 422 && result && !result.ok) {
@@ -200,7 +213,7 @@ export function QuoteForm({ preset = null }: { preset?: ProjectType | null }) {
     }
     if (step < 4) {
       goTo(step + 1);
-    } else {
+    } else if (!TURNSTILE_SITE_KEY || turnstileToken) {
       void submit();
     }
   };
@@ -242,7 +255,7 @@ export function QuoteForm({ preset = null }: { preset?: ProjectType | null }) {
     primaryLabel = "Skip for now";
   }
   if (step === 4) {
-    primaryLabel = sending ? "Sending your request…" : status === "failed" ? "Try again" : "Get my free quote";
+    primaryLabel = sending ? "Sending your request…" : TURNSTILE_SITE_KEY && !turnstileToken ? "Checking you’re not a robot…" : status === "failed" ? "Try again" : "Get my free quote";
   }
 
   const typeLabel = projectTypes.find((item) => item.id === type)?.label ?? "—";
@@ -501,6 +514,14 @@ export function QuoteForm({ preset = null }: { preset?: ProjectType | null }) {
           </div>
           {showFieldError("phone") && <FieldError id="qf-phone-err">{phoneError}</FieldError>}
 
+          {TURNSTILE_SITE_KEY && <Turnstile siteKey={TURNSTILE_SITE_KEY} onToken={setTurnstileToken} resetKey={turnstileReset} />}
+          {serverErrors.form && !sending && (
+            <div role="alert" className="flex items-start gap-2.5 rounded-lg border border-danger bg-danger-tint px-3.5 py-3 text-sm leading-5 text-danger-ink">
+              <AlertTriangleIcon size={18} className="mt-px flex-none text-danger" />
+              <span>{serverErrors.form}</span>
+            </div>
+          )}
+
           <p className="m-0 text-xs leading-[18px] text-muted">
             We only use these details to reply about your project and never sell them. See our{" "}
             <Link href="/privacy" className="text-link">privacy policy</Link>.
@@ -574,7 +595,7 @@ export function QuoteForm({ preset = null }: { preset?: ProjectType | null }) {
           )}
           <button
             type="submit"
-            disabled={sending}
+            disabled={sending || (step === 4 && !!TURNSTILE_SITE_KEY && !turnstileToken)}
             aria-busy={sending}
             className="inline-flex min-h-12 flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg bg-midnight px-[18px] text-base font-medium text-white hover:bg-midnight-hover disabled:cursor-progress disabled:opacity-85"
           >

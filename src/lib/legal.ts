@@ -16,7 +16,7 @@ export const termsSections: LegalSection[] = [
   {
     title: "About these terms",
     paras: [
-      "These terms apply when you use ledobiz.com, request a quote, or work with Ledobiz Technologies Limited (\"Ledobiz\", \"we\", \"us\"), a company registered in Nigeria under RC [NUMBER], with its office at [REGISTERED ADDRESS], Lagos.",
+      "These terms apply when you use ledobiz.com, request a quote, or work with Ledobiz Technologies Limited (\"Ledobiz\", \"we\", \"us\"), a company registered in Nigeria under RC 8302795, with its registered office at Plot 2, Road K, 7th Avenue, Rofo Estate, Ikorodu, Lagos State, and an office at 6, Wilson Estate, Asore Town, Ajuwon, Ifo, Ogun State.",
       "Each project is also governed by a signed proposal or statement of work. If that document conflicts with these terms, the signed document wins.",
     ],
   },
@@ -40,7 +40,7 @@ export const termsSections: LegalSection[] = [
     title: "Projects, fees and payment",
     paras: ["The scope, timeline, price and payment schedule for each project are set out in the signed proposal. Unless that document says otherwise:"],
     list: [
-      "Work starts after the first payment of [PERCENTAGE]% is received.",
+      "Work starts after the first payment of 70% is received.",
       "Invoices are due within [14] days of issue.",
       "We may pause work while an invoice is overdue.",
       "Prices exclude taxes such as VAT, which are added where they apply.",
@@ -114,8 +114,8 @@ export const privacySections: LegalSection[] = [
   {
     title: "Who we are",
     paras: [
-      "Ledobiz Technologies Limited (\"Ledobiz\", \"we\", \"us\") is a software development company registered in Nigeria under RC [NUMBER], at [REGISTERED ADDRESS], Lagos. We decide how the personal data described in this policy is used.",
-      "For any privacy question, contact us at hello@ledobiz.com. [If appointed: our Data Protection Officer is [NAME], reachable at [EMAIL].]",
+      "Ledobiz Technologies Limited (\"Ledobiz\", \"we\", \"us\") is a software development company registered in Nigeria under RC 8302795. Our registered office is at Plot 2, Road K, 7th Avenue, Rofo Estate, Ikorodu, Lagos State, and we also have an office at 6, Wilson Estate, Asore Town, Ajuwon, Ifo, Ogun State. We decide how the personal data described in this policy is used.",
+      "For any privacy question, contact us at hello@ledobiz.com.",
     ],
   },
   {
@@ -125,7 +125,7 @@ export const privacySections: LegalSection[] = [
       "Quote requests: your name, email address, phone or WhatsApp number, company, and your project details, budget range, currency and timeline.",
       "Conversations: emails, messages and call notes when you contact us or work with us.",
       "Client records: billing contacts, invoices and contracts.",
-      "Website usage: IP address, browser and device type, and pages visited, collected through cookies and analytics tools.",
+      "Website usage: IP address and browser and device type, used to keep the website secure and to check that quote requests come from people rather than automated bots.",
     ],
   },
   {
@@ -147,7 +147,7 @@ export const privacySections: LegalSection[] = [
     title: "Who we share it with",
     paras: ["We never sell your personal data. We share it only with:"],
     list: [
-      "Service providers who help us operate, such as hosting, email, analytics and payment providers, under contracts that protect your data.",
+      "Service providers who help us operate, such as hosting, email and payment providers, and Cloudflare, which checks quote requests for automated spam, under contracts that protect your data.",
       "Professional advisers such as lawyers and accountants, where needed.",
       "Authorities, when the law requires it.",
     ],
@@ -183,7 +183,7 @@ export const privacySections: LegalSection[] = [
   },
   {
     title: "Cookies",
-    paras: ["We use essential cookies to make the website work, and analytics cookies, only with your consent, to understand how visitors use it. Analytics tools we use: [LIST TOOLS]. You can change your choice at any time through the cookie banner or your browser settings."],
+    paras: ["We only use cookies and similar technologies that are needed for the website to work and stay secure. When you request a quote, Cloudflare Turnstile runs a short check to confirm you are not an automated bot; it may read basic browser and device signals for that purpose only. We do not use advertising or analytics cookies. You can block or delete cookies in your browser settings, but parts of the website may then stop working."],
   },
   {
     title: "Data we process for clients",

@@ -8,7 +8,12 @@ export const site = {
   seoTitle: "Ledobiz · Software, web and mobile app development company in Lagos, Nigeria",
   email: "hello@ledobiz.com",
   location: "Lagos, Nigeria",
-  address: { locality: "Lagos", region: "Lagos", country: "NG" },
+  rcNumber: "8302795",
+  /** Registered office first. */
+  offices: [
+    { label: "Registered office", street: "Plot 2, Road K, 7th Avenue, Rofo Estate", locality: "Ikorodu", region: "Lagos State" },
+    { label: "Office", street: "6, Wilson Estate, Asore Town, Ajuwon", locality: "Ifo", region: "Ogun State" },
+  ],
   url: "https://ledobiz.com",
   crestPassUrl: "https://crestpass.com/",
   logo: "/brand/ledobiz-logo-on-dark.svg",

@@ -7,6 +7,7 @@ import { sendQuoteConfirmation } from "@/lib/server/client-emails";
 import { notifyTeam } from "@/lib/server/mailer";
 import { notifyAdminsPush } from "@/lib/server/push";
 import { getSettings } from "@/lib/server/settings";
+import { verifyTurnstile } from "@/lib/server/turnstile";
 
 const MAX_BODY_BYTES = 16_000;
 
@@ -35,6 +36,12 @@ export async function POST(request: Request): Promise<Response> {
   const { errors, data } = validateQuoteRequest(body);
   if (!data) {
     return Response.json({ ok: false, errors } satisfies QuoteResponse, { status: 422 });
+  }
+
+  const human = await verifyTurnstile(body.turnstileToken, request);
+  if (!human.ok) {
+    const form = human.reason === "unavailable" ? "We couldn’t run the security check just now. Please try again in a minute." : "Please complete the security check and try again.";
+    return Response.json({ ok: false, errors: { form, turnstile: human.reason } } satisfies QuoteResponse, { status: human.reason === "unavailable" ? 503 : 403 });
   }
 
   try {

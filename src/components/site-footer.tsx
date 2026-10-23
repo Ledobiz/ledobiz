@@ -40,13 +40,18 @@ export function SiteFooter({ quoteHref = "#quote", className = "" }: { quoteHref
           <div className="flex flex-[1_1_200px] flex-col gap-2.5">
             <span className={headingClass}>CONTACT</span>
             <a href={`mailto:${site.email}`} className={linkClass}>{site.email}</a>
-            <span>Lagos, Nigeria</span>
+            {site.offices.map((office) => (
+              <address key={office.label} className="not-italic">
+                <span className="block text-[12px] tracking-[0.08em] text-haze uppercase">{office.label}</span>
+                {office.street}, {office.locality}, {office.region}
+              </address>
+            ))}
             <span>Remote worldwide</span>
           </div>
         </div>
 
         <div className="flex flex-wrap justify-between gap-3 border-t border-white/12 pt-6 text-[13px] leading-5 text-haze">
-          <span>© {COPYRIGHT_YEAR} {site.legalName}. All rights reserved.</span>
+          <span>© {COPYRIGHT_YEAR} {site.legalName} · RC {site.rcNumber}. All rights reserved.</span>
           <span className="flex gap-5">
             <Link href="/privacy" className={linkClass}>Privacy policy</Link>
             <Link href="/terms" className={linkClass}>Terms and conditions</Link>
