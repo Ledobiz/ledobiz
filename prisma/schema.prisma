@@ -1,0 +1,424 @@
+// Ledobiz admin data model. Money is stored as Decimal(14,2) in the record's own currency.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  PROJECT_LEAD
+  FINANCE
+  MEMBER
+}
+
+enum QuoteStatus {
+  NEW
+  REPLIED
+  WON
+  LOST
+}
+
+enum ProjectStatus {
+  PENDING
+  ONGOING
+  COMPLETED
+  CANCELLED
+}
+
+enum MilestoneStatus {
+  PENDING
+  ONGOING
+  COMPLETED
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  VOID
+}
+
+enum EmailDirection {
+  OUTBOUND
+  INBOUND
+}
+
+enum EmailCategory {
+  QUOTE_CONFIRMATION
+  QUOTE_REPLY
+  QUOTE_FOLLOW_UP
+  PROJECT_UPDATE
+  DEADLINE_NOTICE
+  INVOICE
+  PAYMENT_REMINDER
+  RECEIPT
+  GENERAL
+  RECEIVED
+  WELCOME
+  MILESTONE_REVIEW
+  ACTION_NEEDED
+  LAUNCH
+  PAYMENT_OVERDUE
+  TRANSFER_PENDING
+  PAYMENT_FAILED
+  FEEDBACK_REQUEST
+  SUPPORT_RENEWAL
+}
+
+enum EmailStatus {
+  SENT
+  FAILED
+  NOT_SENT
+  RECEIVED
+}
+
+model User {
+  id           String    @id @default(cuid())
+  name         String
+  email        String    @unique
+  passwordHash String
+  role         Role      @default(MEMBER)
+  active       Boolean   @default(true)
+  lastActiveAt DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  sessions    Session[]
+  ledProjects Project[]   @relation("ProjectLead")
+  milestones  Milestone[]
+  emails      Email[]
+  activities  Activity[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model Client {
+  id               String    @id @default(cuid())
+  company          String
+  industry         String?
+  city             String?
+  country          String?
+  notes            String?
+  supportPlanName  String?
+  supportPlanPrice Decimal?  @db.Decimal(14, 2)
+  supportPlanUntil DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  contacts ClientContact[]
+  quotes   QuoteRequest[]
+  projects Project[]
+  invoices Invoice[]
+  emails   Email[]
+
+  @@index([company])
+}
+
+model ClientContact {
+  id               String  @id @default(cuid())
+  clientId         String
+  client           Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  name             String
+  role             String?
+  email            String
+  phone            String?
+  isPrimary        Boolean @default(false)
+  receivesInvoices Boolean @default(false)
+
+  @@index([clientId])
+  @@index([email])
+}
+
+model QuoteRequest {
+  id            String      @id @default(cuid())
+  reference     String      @unique
+  status        QuoteStatus @default(NEW)
+  projectType   String
+  currency      String
+  budget        String
+  timeline      String
+  features      String[]
+  details       String?
+  name          String
+  email         String
+  phone         String?
+  company       String?
+  sourcePath    String?
+  internalNotes String?
+  repliedAt     DateTime?
+  clientId      String?
+  client        Client?     @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  emails     Email[]
+  projects   Project[]
+  activities Activity[]
+
+  @@index([status, createdAt])
+  @@index([email])
+}
+
+model Project {
+  id               String        @id @default(cuid())
+  name             String
+  clientId         String
+  client           Client        @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  quoteId          String?
+  quote            QuoteRequest? @relation(fields: [quoteId], references: [id], onDelete: SetNull)
+  service          String
+  status           ProjectStatus @default(PENDING)
+  stage            String?
+  currency         String        @default("NGN")
+  contractValue    Decimal       @db.Decimal(14, 2)
+  expenseBudget    Decimal       @default(0) @db.Decimal(14, 2)
+  contractType     String        @default("Fixed price")
+  supportTerms     String?
+  techStack        String[]
+  startDate        DateTime?
+  deadline         DateTime?
+  deliveredAt      DateTime?
+  leadId           String?
+  lead             User?         @relation("ProjectLead", fields: [leadId], references: [id], onDelete: SetNull)
+  stagingUrl       String?
+  repoUrl          String?
+  designUrl        String?
+  /// Last day of free fixes after launch; drives the support renewal email.
+  freeSupportUntil DateTime?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  milestones Milestone[]
+  expenses   Expense[]
+  invoices   Invoice[]
+  emails     Email[]
+  activities Activity[]
+
+  @@index([status])
+  @@index([clientId])
+}
+
+model Milestone {
+  id             String          @id @default(cuid())
+  projectId      String
+  project        Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  position       Int
+  name           String
+  status         MilestoneStatus @default(PENDING)
+  progress       Int             @default(0)
+  plannedStart   DateTime
+  plannedEnd     DateTime
+  forecastEnd    DateTime?
+  completedAt    DateTime?
+  paymentPercent Int?
+  blocker        String?
+  ownerId        String?
+  owner          User?           @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+
+  invoices Invoice[]
+
+  @@index([projectId, position])
+}
+
+model Expense {
+  id          String   @id @default(cuid())
+  projectId   String?
+  project     Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  category    String
+  description String
+  amount      Decimal  @db.Decimal(14, 2)
+  currency    String   @default("NGN")
+  spentOn     DateTime
+  createdAt   DateTime @default(now())
+
+  @@index([spentOn])
+  @@index([projectId])
+}
+
+model Invoice {
+  id               String        @id @default(cuid())
+  number           String        @unique
+  clientId         String
+  client           Client        @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  projectId        String?
+  project          Project?      @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  milestoneId      String?
+  milestone        Milestone?    @relation(fields: [milestoneId], references: [id], onDelete: SetNull)
+  status           InvoiceStatus @default(DRAFT)
+  currency         String
+  issueDate        DateTime
+  dueDate          DateTime
+  vatRate          Decimal       @default(0) @db.Decimal(5, 2)
+  discount         Decimal       @default(0) @db.Decimal(14, 2)
+  notes            String?
+  sentAt           DateTime?
+  paidAt           DateTime?
+  paymentMethod    String?
+  paymentReference String?
+  /// Secret for the client's public payment page (/pay/[payToken]).
+  payToken         String?       @unique
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  items    InvoiceItem[]
+  emails   Email[]
+  payments Payment[]
+
+  @@index([status, dueDate])
+  @@index([clientId])
+}
+
+enum PaymentProvider {
+  PAYSTACK
+  FLUTTERWAVE
+  BANK_TRANSFER
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+/// One attempt to pay an invoice online, or a client's note that they sent a bank transfer.
+model Payment {
+  id                    String          @id @default(cuid())
+  invoiceId             String
+  invoice               Invoice         @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  provider              PaymentProvider
+  status                PaymentStatus   @default(PENDING)
+  reference             String          @unique
+  amount                Decimal         @db.Decimal(14, 2)
+  currency              String
+  receiptEmail          String
+  providerTransactionId String?
+  channel               String?
+  cardLast4             String?
+  failureReason         String?
+  paidAt                DateTime?
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+
+  @@index([invoiceId, createdAt])
+}
+
+model InvoiceItem {
+  id          String  @id @default(cuid())
+  invoiceId   String
+  invoice     Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  position    Int
+  description String
+  quantity    Decimal @default(1) @db.Decimal(10, 2)
+  rate        Decimal @db.Decimal(14, 2)
+}
+
+model Email {
+  id                String         @id @default(cuid())
+  direction         EmailDirection @default(OUTBOUND)
+  category          EmailCategory  @default(GENERAL)
+  status            EmailStatus    @default(SENT)
+  subject           String
+  body              String
+  fromAddress       String
+  toAddress         String
+  cc                String?
+  aiAssisted        Boolean        @default(false)
+  /// File names of anything attached, e.g. the invoice PDF.
+  attachments       String[]       @default([])
+  /// The email provider's message ID (look it up in Brevo's logs).
+  providerMessageId String?
+  error             String?
+  sentById          String?
+  sentBy            User?          @relation(fields: [sentById], references: [id], onDelete: SetNull)
+  clientId          String?
+  client            Client?        @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  quoteId           String?
+  quote             QuoteRequest?  @relation(fields: [quoteId], references: [id], onDelete: SetNull)
+  projectId         String?
+  project           Project?       @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  invoiceId         String?
+  invoice           Invoice?       @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  createdAt         DateTime       @default(now())
+
+  @@index([clientId, createdAt])
+  @@index([quoteId])
+  @@index([projectId])
+}
+
+model Activity {
+  id        String        @id @default(cuid())
+  message   String
+  userId    String?
+  user      User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  quoteId   String?
+  quote     QuoteRequest? @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  projectId String?
+  project   Project?      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt DateTime      @default(now())
+
+  @@index([quoteId, createdAt])
+  @@index([projectId, createdAt])
+}
+
+/// One row (id = "default") holding company-wide settings.
+model Settings {
+  id                    String   @id @default("default")
+  tradingName           String   @default("Ledobiz")
+  legalName             String   @default("Ledobiz Technologies Limited")
+  rcNumber              String?
+  taxId                 String?
+  address               String?
+  email                 String   @default("hello@ledobiz.com")
+  phone                 String?
+  website               String   @default("https://ledobiz.com")
+  emailFromName         String   @default("Ledobiz Technologies")
+  emailFrom             String   @default("hello@ledobiz.com")
+  invoicesFrom          String   @default("accounts@ledobiz.com")
+  signature             String   @default("Kind regards,\n{name}\nLedobiz Technologies\nhello@ledobiz.com · ledobiz.com")
+  aiTone                String   @default("Friendly and professional")
+  aiBrandVoice          String   @default("Precise and reliable. Say exactly what the software does for the client's business. Short sentences, active voice, no exclamation marks. Always state prices, dates and next steps clearly. Never promise a date or discount that isn't in the project.")
+  quoteReplyHours       Int      @default(24)
+  quoteNotifyEmails     String   @default("hello@ledobiz.com")
+  sendQuoteConfirmation Boolean  @default(true)
+  reportingCurrency     String   @default("NGN")
+  /// Value of 1 unit of each currency in the reporting currency, e.g. {"USD":1460}.
+  exchangeRates         Json     @default("{\"NGN\":1,\"USD\":1460,\"GBP\":1930,\"EUR\":1600,\"CAD\":1060,\"GHS\":120,\"KES\":11.3,\"ZAR\":82,\"AED\":398}")
+  vatRate               Decimal  @default(7.5) @db.Decimal(5, 2)
+  paymentTermsDays      Int      @default(14)
+  invoicePrefix         String   @default("INV-")
+  targetMargin          Int      @default(40)
+  bankDetails           String?
+  /// Booking page linked from quote emails (e.g. Calendly). Optional.
+  bookingUrl            String?
+  /// Feedback form linked from the feedback request email. Optional.
+  feedbackUrl           String?
+  // Emails the daily job sends automatically.
+  autoQuoteFollowUp     Boolean  @default(true)
+  autoWelcome           Boolean  @default(true)
+  autoWeeklyUpdates     Boolean  @default(false)
+  autoPaymentReminders  Boolean  @default(true)
+  autoOverdueReminders  Boolean  @default(true)
+  autoFeedbackRequests  Boolean  @default(true)
+  autoSupportRenewals   Boolean  @default(true)
+  /// Attach PDFs to invoice and receipt emails (the links stay either way).
+  attachInvoicePdf      Boolean  @default(true)
+  attachReceiptPdf      Boolean  @default(true)
+  /// Summary of the last daily email run, shown in Settings.
+  automationLastRun     Json?
+  updatedAt             DateTime @updatedAt
+}

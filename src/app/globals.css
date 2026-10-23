@@ -1,0 +1,130 @@
+@import "tailwindcss";
+
+@theme {
+  /* Ledobiz brand colours */
+  --color-midnight: #000033;
+  --color-midnight-hover: #1a1a5c;
+  --color-river: #35a9ce;
+  --color-river-hover: #5bbbd9;
+  --color-salsify: #33cc99;
+  --color-gold: #ff9900;
+
+  /* UI colours */
+  --color-surface: #f3f5f9;
+  --color-line: #dde2ea;
+  --color-control: #7a8299;
+  --color-muted: #4b5470;
+  --color-body: #2c3350;
+  --color-link: #1b7a99;
+  --color-tint: #e6f4f9;
+  --color-success: #1a7f5a;
+  --color-danger: #c62828;
+  --color-danger-ink: #8e1c1c;
+  --color-danger-tint: #fdecec;
+  --color-danger-on-dark: #ff8a80;
+  --color-mist: #c9cee0;
+  --color-haze: #a7adc6;
+  --color-snow: #f4f6fb;
+
+  --font-sans: var(--font-google-sans), system-ui, sans-serif;
+  --font-display: var(--font-petrov-sans), system-ui, sans-serif;
+
+  /* Main navigation collapses into a menu below this width */
+  --breakpoint-nav: 53.75rem;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-white font-sans text-midnight antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-link);
+    outline-offset: 2px;
+  }
+
+  .on-dark :focus-visible {
+    outline-color: var(--color-river);
+  }
+
+  summary {
+    list-style: none;
+    cursor: pointer;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility overline {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  letter-spacing: 0.45em;
+  text-transform: uppercase;
+}
+
+/* The admin email editor (rich-text-editor.tsx): close to how the email will look. */
+@layer components {
+  .rich-text > * + * {
+    margin-top: 12px;
+  }
+  .rich-text h2 {
+    font-family: var(--font-display);
+    font-size: 19px;
+    line-height: 25px;
+    font-weight: 700;
+  }
+  .rich-text h3 {
+    font-size: 16px;
+    line-height: 22px;
+    font-weight: 700;
+  }
+  .rich-text ul {
+    list-style: disc;
+    padding-left: 22px;
+  }
+  .rich-text ol {
+    list-style: decimal;
+    padding-left: 22px;
+  }
+  .rich-text li + li {
+    margin-top: 4px;
+  }
+  .rich-text blockquote {
+    border-left: 3px solid var(--color-river);
+    padding-left: 14px;
+    color: var(--color-muted);
+  }
+  .rich-text a {
+    color: var(--color-link);
+    text-decoration: underline;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
