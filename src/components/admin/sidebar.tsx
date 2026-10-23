@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { logout } from "@/app/admin/actions/auth";
+import { logout } from "@/app/zeus/actions/auth";
 import { ExternalIcon, FolderIcon, InboxIcon, OverviewIcon, SettingsIcon, UsersIcon, WalletIcon } from "@/components/admin/icons";
 import { SidebarNav, type NavItem } from "@/components/admin/sidebar-nav";
 import { Avatar } from "@/components/admin/ui";
@@ -23,12 +23,12 @@ export async function Sidebar() {
   ]);
 
   const items: NavItem[] = [
-    { href: "/admin", label: "Overview", icon: <OverviewIcon />, area: "overview" as const },
-    { href: "/admin/quotes", label: "Quote requests", icon: <InboxIcon />, area: "quotes" as const, badge: newQuotes ? { text: String(newQuotes), tone: "gold" as const } : undefined },
-    { href: "/admin/projects", label: "Projects", icon: <FolderIcon />, area: "projects" as const },
-    { href: "/admin/clients", label: "Clients", icon: <UsersIcon />, area: "clients" as const },
-    { href: "/admin/finances", label: "Finances", icon: <WalletIcon />, area: "finance" as const, badge: overdueInvoices ? { text: `${overdueInvoices} overdue`, tone: "red" as const } : undefined },
-    { href: "/admin/settings", label: "Settings", icon: <SettingsIcon />, area: "settings" as const },
+    { href: "/zeus", label: "Overview", icon: <OverviewIcon />, area: "overview" as const },
+    { href: "/zeus/quotes", label: "Quote requests", icon: <InboxIcon />, area: "quotes" as const, badge: newQuotes ? { text: String(newQuotes), tone: "gold" as const } : undefined },
+    { href: "/zeus/projects", label: "Projects", icon: <FolderIcon />, area: "projects" as const },
+    { href: "/zeus/clients", label: "Clients", icon: <UsersIcon />, area: "clients" as const },
+    { href: "/zeus/finances", label: "Finances", icon: <WalletIcon />, area: "finance" as const, badge: overdueInvoices ? { text: `${overdueInvoices} overdue`, tone: "red" as const } : undefined },
+    { href: "/zeus/settings", label: "Settings", icon: <SettingsIcon />, area: "settings" as const },
   ]
     .filter((item) => canAccess(user.role, item.area))
     .map((item) => ({ href: item.href, label: item.label, icon: item.icon, badge: item.badge }));
@@ -43,7 +43,7 @@ export async function Sidebar() {
         </Link>
         <div className="flex items-center gap-2.5 border-t border-white/10 px-2.5 pt-3">
           <Avatar name={user.name} />
-          <Link href="/admin/account" className="flex min-w-0 flex-1 flex-col no-underline">
+          <Link href="/zeus/account" className="flex min-w-0 flex-1 flex-col no-underline">
             <strong className="truncate text-sm text-white">{user.name}</strong>
             <span className="text-xs text-haze">{roleLabels[user.role]} · Your account</span>
           </Link>
@@ -59,7 +59,7 @@ export async function Sidebar() {
 function SidebarFrame({ children }: { children?: React.ReactNode }) {
   return (
     <aside className="on-dark flex w-full flex-col gap-5 bg-midnight px-3.5 py-5 text-sm text-mist nav:min-h-dvh nav:w-[248px]">
-      <Link href="/admin" aria-label="Ledobiz admin home" className="flex items-center justify-between gap-2 px-1.5 no-underline">
+      <Link href="/zeus" aria-label="Ledobiz admin home" className="flex items-center justify-between gap-2 px-1.5 no-underline">
         <Image src={site.logo} alt="Ledobiz" width={128} height={34} unoptimized className="h-[34px] w-32 object-cover" />
         <span className="rounded bg-river px-1.5 py-0.5 text-[10px] font-medium tracking-[0.2em] text-midnight">ADMIN</span>
       </Link>

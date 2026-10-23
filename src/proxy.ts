@@ -8,12 +8,12 @@ const SESSION_COOKIE = "ldz_admin_session";
  */
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  if (pathname === "/admin/login") {
+  if (pathname === "/zeus/login") {
     return NextResponse.next();
   }
   if (!request.cookies.has(SESSION_COOKIE)) {
-    const url = new URL("/admin/login", request.url);
-    if (pathname !== "/admin") {
+    const url = new URL("/zeus/login", request.url);
+    if (pathname !== "/zeus") {
       url.searchParams.set("next", pathname);
     }
     return NextResponse.redirect(url);
@@ -22,5 +22,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin", "/admin/:path*"],
+  matcher: ["/zeus", "/zeus/:path*"],
 };

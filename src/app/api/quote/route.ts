@@ -50,7 +50,7 @@ export async function POST(request: Request): Promise<Response> {
     if (settings.sendQuoteConfirmation) {
       await sendQuoteConfirmation(quote.id).catch((cause: unknown) => console.error("Quote confirmation email failed", cause));
     }
-    const adminUrl = new URL(`/admin/quotes/${quote.id}`, request.url).toString();
+    const adminUrl = new URL(`/zeus/quotes/${quote.id}`, request.url).toString();
     const from = `${data.name}${data.company ? ` (${data.company})` : ""}`;
     // Team alerts go out after the visitor has their reference, so a slow provider never holds up the form.
     after(() =>

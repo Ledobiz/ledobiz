@@ -82,10 +82,10 @@ export function canAccess(role: Role, area: Area): boolean {
 export async function requireUser(area?: Area): Promise<SessionUser> {
   const user = await getSessionUser();
   if (!user) {
-    redirect("/admin/login");
+    redirect("/zeus/login");
   }
   if (area && !canAccess(user.role, area)) {
-    redirect("/admin?denied=1");
+    redirect("/zeus?denied=1");
   }
   return user;
 }

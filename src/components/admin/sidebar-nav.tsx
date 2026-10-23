@@ -12,7 +12,7 @@ export function SidebarNav({ items }: { items: NavItem[] }) {
   return (
     <nav aria-label="Admin" className="flex flex-wrap gap-0.5 nav:flex-col">
       {items.map((item) => {
-        const active = item.href === "/admin" ? pathname === "/admin" : pathname.startsWith(item.href);
+        const active = item.href === "/zeus" ? pathname === "/zeus" : pathname.startsWith(item.href);
         return (
           <Link
             key={item.href}

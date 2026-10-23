@@ -16,7 +16,7 @@ npm run db:deploy   # applies prisma/migrations
 npm run db:seed     # admin from ADMIN_EMAIL/ADMIN_PASSWORD; add SEED_DEMO=1 for demo data
 ```
 
-3. Sign in at `/admin/login`.
+3. Sign in at `/zeus/login`.
 
 ## Run it
 
@@ -38,7 +38,7 @@ npm run lint
 | 500 | `src/app/error.tsx`, `src/app/global-error.tsx` |
 | Quote API (saves to the database, emails the visitor and the team) | `src/app/api/quote/route.ts` |
 
-## Admin dashboard (`/admin`)
+## Admin dashboard (`/zeus`)
 
 | Area | What it does |
 | --- | --- |

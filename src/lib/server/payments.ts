@@ -132,7 +132,7 @@ export async function settleInvoice(invoiceId: string, payment: { paidAt: Date; 
   }
   if (!payment.userId) {
     const settings = await getSettings();
-    await notifyTeam(settings.quoteNotifyEmails, `Invoice ${invoice.number} paid online`, `Paid by ${payment.method}, reference ${payment.reference}.\n\n${appUrl()}/admin/finances/invoices/${invoiceId}`).catch(() => undefined);
+    await notifyTeam(settings.quoteNotifyEmails, `Invoice ${invoice.number} paid online`, `Paid by ${payment.method}, reference ${payment.reference}.\n\n${appUrl()}/zeus/finances/invoices/${invoiceId}`).catch(() => undefined);
   }
   return true;
 }
@@ -151,7 +151,7 @@ export async function recordBankTransferClaim(token: string, receiptEmail: strin
     await notifyTeam(
       settings.quoteNotifyEmails,
       `${invoice.client.company} says they paid ${invoice.number} by bank transfer`,
-      `Check the bank account for ${money(invoiceTotal(invoice), invoice.currency, { decimals: true })} with reference ${invoice.number}, then mark the invoice paid:\n\n${appUrl()}/admin/finances/invoices/${invoice.id}\n\nReceipt email: ${receiptEmail}`,
+      `Check the bank account for ${money(invoiceTotal(invoice), invoice.currency, { decimals: true })} with reference ${invoice.number}, then mark the invoice paid:\n\n${appUrl()}/zeus/finances/invoices/${invoice.id}\n\nReceipt email: ${receiptEmail}`,
     ).catch(() => undefined);
   }
   return true;
