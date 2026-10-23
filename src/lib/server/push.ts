@@ -58,6 +58,39 @@ export async function sendPush(userIds: string[], message: PushMessage): Promise
   return Boolean(json?.id);
 }
 
+export type PushDevice = { id: string; browser: string; device: string | null; enabled: boolean };
+
+const browsers: Record<string, string> = { ChromePush: "Chrome", FirefoxPush: "Firefox", SafariPush: "Safari", AndroidPush: "Android app", iOSPush: "iPhone app" };
+
+/** The devices linked to a user in OneSignal. Empty when push isn't set up or they haven't linked any. */
+export async function listPushDevices(userId: string): Promise<PushDevice[]> {
+  const appId = pushAppId();
+  if (!appId) {
+    return [];
+  }
+  const response = await fetch(`https://api.onesignal.com/apps/${appId}/users/by/external_id/${encodeURIComponent(userId)}`, {
+    headers: { Authorization: `Key ${process.env.ONESIGNAL_REST_API_KEY}` },
+    cache: "no-store",
+    signal: AbortSignal.timeout(8_000),
+  });
+  // 404 means OneSignal hasn't seen this user yet: no device linked.
+  if (response.status === 404) {
+    return [];
+  }
+  const json = (await response.json().catch(() => null)) as { subscriptions?: { id: string; type: string; enabled?: boolean; device_model?: string; device_os?: string }[]; errors?: unknown } | null;
+  if (!response.ok) {
+    throw new PushSendError(oneSignalError(response.status, json?.errors));
+  }
+  return (json?.subscriptions ?? [])
+    .filter((subscription) => subscription.type in browsers || subscription.type.endsWith("Push"))
+    .map((subscription) => ({
+      id: subscription.id,
+      browser: browsers[subscription.type] ?? subscription.type.replace(/Push$/, ""),
+      device: [subscription.device_model, subscription.device_os].filter(Boolean).join(" · ") || null,
+      enabled: subscription.enabled !== false,
+    }));
+}
+
 /** Internal alert to every active admin who has turned on alerts on a device. */
 export async function notifyAdminsPush(message: PushMessage): Promise<void> {
   if (!isPushConfigured()) {

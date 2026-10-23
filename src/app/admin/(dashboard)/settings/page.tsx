@@ -8,7 +8,7 @@ import { db } from "@/lib/server/db";
 import { emailProviderName } from "@/lib/server/mailer";
 import { isProviderConfigured, providerNames } from "@/lib/server/payment-providers";
 import { PushToggle } from "@/components/admin/push-toggle";
-import { pushAppId } from "@/lib/server/push";
+import { listPushDevices, type PushDevice, pushAppId } from "@/lib/server/push";
 import { readRunSummary } from "@/lib/server/scheduled-emails";
 import { getSettings, readRates } from "@/lib/server/settings";
 import { ResetPasswordForm, RunNowButton, SettingsForm, TestEmailButton, TestPushButton } from "./settings-form";
@@ -41,6 +41,15 @@ export default async function SettingsPage() {
   const emailProvider = emailProviderName();
   const aiReady = isAiConfigured();
   const pushApp = pushAppId();
+  let pushDevices: PushDevice[] = [];
+  let pushDevicesError: string | undefined;
+  if (pushApp) {
+    try {
+      pushDevices = await listPushDevices(me.id);
+    } catch (cause) {
+      pushDevicesError = cause instanceof Error ? cause.message : "Couldn’t load your devices from OneSignal.";
+    }
+  }
 
   return (
     <>
@@ -61,19 +70,24 @@ export default async function SettingsPage() {
           </Card>
         ))}
         <Card className="flex items-center justify-between gap-3 px-4 py-3.5"><span className="flex flex-col"><strong>AI drafting</strong><span className="text-[13px] text-muted">{aiReady ? `OpenAI · ${process.env.OPENAI_MODEL || "gpt-5.4-mini"}` : "Set OPENAI_API_KEY"}</span></span><Chip tone={aiReady ? "ok" : "warn"}>{aiReady ? "Connected" : "Not set up"}</Chip></Card>
-        <Card className="flex flex-col gap-2.5 px-4 py-3.5">
-          <span className="flex items-center justify-between gap-3">
-            <span className="flex flex-col"><strong>Push alerts</strong><span className="text-[13px] text-muted">{pushApp ? "New quotes alert admins’ phones and browsers" : "Set ONESIGNAL_APP_ID and ONESIGNAL_REST_API_KEY"}</span></span>
-            <Chip tone={pushApp ? "ok" : "warn"}>{pushApp ? "Connected" : "Not set up"}</Chip>
-          </span>
-          {pushApp && (
-            <>
-              <PushToggle appId={pushApp} userId={me.id} />
-              <TestPushButton />
-            </>
-          )}
+        <Card className="flex items-center justify-between gap-3 px-4 py-3.5">
+          <span className="flex flex-col"><strong>Push alerts</strong><span className="text-[13px] text-muted">{pushApp ? <a href="#push-title" className="text-link">Connect your devices below</a> : "Set ONESIGNAL_APP_ID and ONESIGNAL_REST_API_KEY"}</span></span>
+          <Chip tone={pushApp ? "ok" : "warn"}>{pushApp ? "Connected" : "Not set up"}</Chip>
         </Card>
       </section>
+
+      {pushApp && (
+        <Card aria-labelledby="push-title" className="scroll-mt-4">
+          <CardHeader id="push-title" title="Push alerts on your devices" subtitle="Get a notification for every new quote request. Connect each laptop and phone you use; alerts go to all of them." />
+          <div className="flex flex-col gap-4 p-5">
+            <PushToggle appId={pushApp} userId={me.id} devices={pushDevices} devicesError={pushDevicesError} />
+            <div className="flex flex-col gap-1.5 border-t border-line pt-3">
+              <strong className="text-sm">Check it works</strong>
+              <TestPushButton />
+            </div>
+          </div>
+        </Card>
+      )}
 
       <Card aria-labelledby="company-title">
         <CardHeader id="company-title" title="Company" subtitle="Shown on invoices, receipts and email footers" />

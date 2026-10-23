@@ -66,6 +66,19 @@ export function AttachmentPicker({ files, onChange, disabled = false }: { files:
   );
 }
 
+/** Picked files for a form using useActionState; cleared once a send succeeds so they aren't attached twice. */
+export function useAttachmentFiles(state: { ok?: boolean }): [File[], (files: File[]) => void] {
+  const [files, setFiles] = useState<File[]>([]);
+  const [seen, setSeen] = useState(state);
+  if (state !== seen) {
+    setSeen(state);
+    if (state.ok) {
+      setFiles([]);
+    }
+  }
+  return [files, setFiles];
+}
+
 /** Puts the picked files into the FormData a send action reads ("attachments"). */
 export function filesToFormData(files: File[], formData = new FormData()): FormData {
   for (const file of files) {

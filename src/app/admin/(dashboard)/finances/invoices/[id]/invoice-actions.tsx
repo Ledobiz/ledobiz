@@ -2,7 +2,7 @@
 
 import { useActionState, useState, useTransition } from "react";
 import { markInvoicePaid, sendInvoice } from "@/app/admin/actions/finance";
-import { AttachmentPicker, filesToFormData } from "@/components/admin/attachment-picker";
+import { AttachmentPicker, filesToFormData, useAttachmentFiles } from "@/components/admin/attachment-picker";
 import { SendIcon } from "@/components/admin/icons";
 import { RichTextEditor } from "@/components/admin/rich-text-editor";
 import { btnPrimary, btnSecondary, btnSmall, Card, cx, inputClass, Notice } from "@/components/admin/ui";
@@ -64,7 +64,7 @@ export function SendInvoicePanel({ invoiceId, defaultSubject, defaultBody, recip
 
 export function MarkPaidPanel({ invoiceId, today, attachByDefault }: { invoiceId: string; today: string; attachByDefault: boolean }) {
   const [state, action, pending] = useActionState(markInvoicePaid.bind(null, invoiceId), {});
-  const [files, setFiles] = useState<File[]>([]);
+  const [files, setFiles] = useAttachmentFiles(state);
   return (
     <Card className="flex flex-col gap-3 p-5">
       <h2 className="m-0 font-display text-lg font-semibold">Record payment</h2>

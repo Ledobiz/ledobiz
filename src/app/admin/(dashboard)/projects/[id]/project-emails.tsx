@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useActionState, useState } from "react";
 import { type FormState, sendActionRequest, sendLaunchEmail, sendProjectWelcome, sendReviewRequest } from "@/app/admin/actions/projects";
-import { AttachmentPicker, filesToFormData } from "@/components/admin/attachment-picker";
+import { AttachmentPicker, filesToFormData, useAttachmentFiles } from "@/components/admin/attachment-picker";
 import { MailIcon } from "@/components/admin/icons";
 import { btnPrimary, Card, CardHeader, cx, Field, inputClass, Notice, textareaClass } from "@/components/admin/ui";
 
@@ -81,7 +81,7 @@ function SendButton({ pending, label }: { pending: boolean; label: string }) {
 
 function ReviewForm({ projectId, milestones, stagingUrl }: Props) {
   const [state, action, pending] = useActionState(sendReviewRequest.bind(null, projectId), {} as FormState);
-  const [files, setFiles] = useState<File[]>([]);
+  const [files, setFiles] = useAttachmentFiles(state);
   const open = milestones.filter((milestone) => milestone.status !== "PENDING");
   const choices = open.length ? open : milestones;
   return (
@@ -109,7 +109,7 @@ function ReviewForm({ projectId, milestones, stagingUrl }: Props) {
 
 function ActionForm({ projectId }: { projectId: string }) {
   const [state, action, pending] = useActionState(sendActionRequest.bind(null, projectId), {} as FormState);
-  const [files, setFiles] = useState<File[]>([]);
+  const [files, setFiles] = useAttachmentFiles(state);
   return (
     <form action={(formData) => action(filesToFormData(files, formData))} className="flex flex-col gap-4">
       <Outcome state={state} sentText="Request sent." />
@@ -132,7 +132,7 @@ function ActionForm({ projectId }: { projectId: string }) {
 
 function LaunchForm({ projectId, defaultFreeSupportUntil, delivered }: Props) {
   const [state, action, pending] = useActionState(sendLaunchEmail.bind(null, projectId), {} as FormState);
-  const [files, setFiles] = useState<File[]>([]);
+  const [files, setFiles] = useAttachmentFiles(state);
   return (
     <form action={(formData) => action(filesToFormData(files, formData))} className="flex flex-col gap-4">
       <Outcome state={state} sentText="Launch email sent." />
@@ -154,7 +154,7 @@ function LaunchForm({ projectId, defaultFreeSupportUntil, delivered }: Props) {
 
 function WelcomeForm({ projectId, sentAt }: { projectId: string; sentAt: string | null }) {
   const [state, action, pending] = useActionState(sendProjectWelcome.bind(null, projectId), {} as FormState);
-  const [files, setFiles] = useState<File[]>([]);
+  const [files, setFiles] = useAttachmentFiles(state);
   return (
     <form action={(formData) => action(filesToFormData(files, formData))} className="flex flex-col gap-4">
       <Outcome state={state} sentText="Welcome email sent." />

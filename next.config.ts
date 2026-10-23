@@ -11,6 +11,8 @@ const nextConfig: NextConfig = {
     "/admin/**": ["src/lib/server/pdf/assets/**/*"],
     "/api/**": ["src/lib/server/pdf/assets/**/*"],
     "/pay/**": ["src/lib/server/pdf/assets/**/*"],
+    // The link preview image reads the logo and brand fonts if it's generated on demand.
+    "/opengraph-image": ["src/lib/server/pdf/assets/*.ttf", "public/brand/ledobiz-logo-email.png"],
   },
   turbopack: {
     rules: {
