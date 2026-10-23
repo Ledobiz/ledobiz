@@ -3,7 +3,7 @@ import Link from "next/link";
 import { services, serviceHref } from "@/lib/services";
 import { site } from "@/lib/site";
 
-const COPYRIGHT_YEAR = 2026;
+const COPYRIGHT_YEAR = new Date().getFullYear();
 
 export function SiteFooter({ quoteHref = "#quote", className = "" }: { quoteHref?: string; className?: string }) {
   const linkClass = "text-mist no-underline hover:text-white hover:underline";
@@ -46,7 +46,6 @@ export function SiteFooter({ quoteHref = "#quote", className = "" }: { quoteHref
                 {office.street}, {office.locality}, {office.region}
               </address>
             ))}
-            <span>Remote worldwide</span>
           </div>
         </div>
 
