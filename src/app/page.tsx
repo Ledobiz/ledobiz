@@ -226,7 +226,7 @@ export default function HomePage() {
                         ))}
                       </dl>
                       {project.url ? (
-                        <a href={project.url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center gap-1.5 text-sm font-medium text-link">
+                        <a href={project.url} target="_blank" rel="noopener noreferrer" className="relative inline-flex min-h-11 items-center gap-1.5 text-sm font-medium text-link">
                           Visit live site
                           <ExternalIcon size={16} />
                           <span className="sr-only">(opens in a new tab)</span>
@@ -258,7 +258,7 @@ export default function HomePage() {
                     <strong className="font-display text-xl md:text-[22px]">{crestPass.price}</strong>
                     <span className="text-sm text-muted md:text-base"> {crestPass.priceUnit}</span>
                   </span>
-                  <a href={site.crestPassUrl} target="_blank" rel="noopener noreferrer" className={`${buttonMidnight} min-h-12 md:min-h-11 md:text-sm`}>
+                  <a href={site.crestPassUrl} target="_blank" rel="noopener noreferrer" className={`${buttonMidnight} relative min-h-12 md:min-h-11 md:text-sm`}>
                     Visit crestpass.com
                     <ExternalIcon size={16} />
                     <span className="sr-only">(opens in a new tab)</span>

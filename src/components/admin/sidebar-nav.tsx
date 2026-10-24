@@ -10,7 +10,7 @@ export type NavItem = { href: string; label: string; icon: ReactNode; badge?: { 
 export function SidebarNav({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
   return (
-    <nav aria-label="Admin" className="flex flex-wrap gap-0.5 nav:flex-col">
+    <nav aria-label="Admin" className="flex flex-col gap-0.5">
       {items.map((item) => {
         const active = item.href === "/zeus" ? pathname === "/zeus" : pathname.startsWith(item.href);
         return (
